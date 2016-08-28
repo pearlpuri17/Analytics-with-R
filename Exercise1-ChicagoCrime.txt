@@ -1,0 +1,171 @@
+setwd("C:/Users/pearl/Downloads/Analytics edge/Data sets/Assignment 1")
+getwd()
+mvt<-read.csv("mvtWeek1.csv")
+str(mvt)
+Q) How many rows of data (observations) are in this dataset? 
+Ans) 191641
+
+Q)How many variables are in this dataset?
+Ans) 11
+
+Q)Using the "max" function, what is the maximum value of the variable "ID"?
+
+Ans) 9181151
+max(mvt$ID)
+
+Q) What is the minimum value of the variable "Beat"?
+
+Ans) 111
+min(mvt$Beat)
+
+Q) How many observations have value TRUE in the Arrest variable 
+(this is the number of crimes for which an arrest was made)?
+
+Ans)15536
+str(subset(mvt,Arrest==TRUE))
+
+Q) How many observations have a LocationDescription value of ALLEY?
+
+Ans) 2308
+str(subset(mvt,LocationDescription=="ALLEY"))
+
+Q)In what format are the entries in the variable Date?
+
+Ans) head(mvt$Date,1)
+
+Q) What is the month and year of the median date in our dataset? 
+Enter your answer as "Month Year", without the quotes. 
+(Ex: if the answer was 2008-03-28, you would give the answer "March 2008", without the quotes.)
+
+Ans) May 2006
+DateConvert = as.Date(strptime(mvt$Date, "%m/%d/%y %H:%M"))
+summary(DateConvert)
+
+Q)In which month did the fewest motor vehicle thefts occur?
+
+Ans)February
+mvt$Month = months(DateConvert) \\ Extract month
+mvt$Weekday = weekdays(DateConvert) \\ Extract Date
+mvt$Date = DateConvert
+sort(table(mvt$Month))
+
+Q) On which weekday did the most motor vehicle thefts occur?
+
+Ans Friday
+sort(table(mvt$Weekday),decreasing=TRUE)
+
+Q) Which month has the largest number of motor vehicle thefts for which an arrest was made?
+
+Ans)
+ArrestMade<-subset(mvt,Arrest==TRUE)
+table(mvt$Month,mvt$Arrest)
+
+Q) In general, does it look like crime increases or decreases from 2002 - 2012?
+
+Ans) Decreasing
+hist(mvt$Date, breaks=100)
+
+Q) In general, does it look like crime increases or decreases from 2005 - 2008?
+
+Ans) Decreases
+
+Q)In general, does it look like crime increases or decreases from 2009 - 2011?
+
+Ans) Increases
+
+Q) Does it look like there were more crimes for which arrests were made in the 
+first half of the time period or the second half of the time period? 
+(Note that the time period is from 2001 to 2012, so the middle of the time 
+period is the beginning of 2007.)
+
+Ans) First Half
+boxplot(mvt$Date ~ mvt$Arrest)
+
+Q) For what proportion of motor vehicle thefts in 2001 was an arrest made?
+
+Ans) 0.1041173
+stat<-subset(mvt,Year==2001)
+str(stat)
+table(stat$Arrest)
+2152/(2152+18517)
+
+Q) For what proportion of motor vehicle thefts in 2007 was an arrest made?
+
+Ans) .0848
+
+stat2<- subset(mvt,Year==2007)
+table(stat2$Arrest)
+1212/(1212+13068)
+
+Q) For what proportion of motor vehicle thefts in 2012 was an arrest made?
+
+Ans) 
+stat3<-subset(mvt,Year==2012)
+table(stat3$Arrest)
+550/(550+13542)
+
+Q) Which locations are the top five locations for motor vehicle thefts, 
+excluding the "Other" category? You should select 5 of the following options.
+
+Ans) 
+sort(table(mvt$LocationDescription),descending=TRUE)
+
+Q) How many observations are in Top5?
+
+Ans)177510 
+Top5<-subset(mvt, LocationDescription=="GAS STATION"|LocationDescription=="STREET"|
+LocationDescription=="PARKING LOT/GARAGE(NON.RESID.)"|
+LocationDescription=="ALLEY"|LocationDescription=="DRIVEWAY - RESIDENTIAL")
+str(Top5)
+
+Q) One of the locations has a much higher arrest rate than the other locations. Which is it? 
+Please enter the text in exactly the same way as how it looks in the answer options for Problem 4.1.
+
+Ans) Gas Station
+Top5$LocationDescription = factor(Top5$LocationDescription)
+str(Top5)
+table(Top5$LocationDescription,Top5$Arrest)
+arrest_ratio <- function(x,y)
+	{
+		z<-y/(x+y)
+		z
+	}
+arrest_ratio(2059,249)
+arrest_ratio(1543,132)
+arrest_ratio(1672,439)
+arrest_ratio(13249,1603)
+arrest_ratio(144969,11595)
+
+Q) On which day of the week do the most motor vehicle thefts at gas stations happen?
+
+Ans) Saturday
+Gas_Stat<-subset(Top5,LocationDescription=="GAS STATION")
+table(Gas_Stat$Weekday)
+
+Q) On which day of the week do the fewest motor vehicle thefts in residential driveways happen?
+
+Ans)Saturday
+Res<-subset(Top5,LocationDescription=="DRIVEWAY - RESIDENTIAL")
+table(Res$Weekday)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,70 @@
+loans = read.csv("loaxns.csv")
+str(loans)
+summary(loans)
+table(loans$not.fully.paid )
+1533/(1533+8045)
+
+missing = subset(loans, is.na(log.annual.inc) | is.na(days.with.cr.line) | is.na(revol.util) | is.na(inq.last.6mths) 
+| is.na(delinq.2yrs) | is.na(pub.rec))
+str(missing)
+
+We see that only 62 of 9578 loans have missing data; removing this small number of observations would not lead to 
+overfitting. From table(missing$not.fully.paid), we see that 12 of 62 loans with missing data were not fully paid, or 
+19.35%. This rate is similar to the 16.01% across all loans, so the form of biasing described is not an issue. 
+However, to predict risk for loans with missing data we need to fill in the missing values instead of removing the 
+observations.
+
+install.packages("mice")
+library(mice)
+loansi = read.csv("loans_imputed.csv")
+str(loansi)
+set.seed(144)
+install.packages("caTools")
+library(caTools)
+spl = sample.split(loansi$not.fully.paid, 0.7)
+train = subset(loansi, spl == TRUE)
+test = subset(loansi, spl == FALSE)
+loanlog = glm(not.fully.paid~., data = train, family= binomial)
+summary(loanlog)
+-700*(.00887)+710*(.00887)
+
+loanpred = predict(loanlog, newdata= test, type = "response")
+str(loanpred)
+test$predicted.risk = loanpred 
+table(test$not.fully.paid, loanpred>0.5)
+(2387+3)/(2387+3+12+455)
+table(test$not.fully.paid)
+
+2413/(2413+460)
+
+Q) Use the ROCR package to compute the test set AUC.
+A) library(ROCR)
+ROCRpred = prediction(test$predicted.risk, test$not.fully.paid)
+as.numeric(performance(ROCRpred,"auc")@y.values)
+
+biloanpred = glm(not.fully.paid~int.rate, data = train, family= binomial)
+summary(biloanpred)
+
+testpredbi = predict(biloanpred, newdata = test,type= "response")
+summary(testpredbi)
+table(test$not.fully.paid, testpredbi>.5)
+
+Q) What is the test set AUC of the bivariate model?
+A) ROCRpred2 = prediction(testpredbi, test$not.fully.paid)
+as.numeric(performance(ROCRpred2,"auc")@y.values)
+
+test$profit = exp(test$int.rate*3) - 1
+
+test$profit[test$not.fully.paid == 1] = -1
+
+summary(test$profit)
+highInterest = subset(test,int.rate>=.15)
+str(highInterest)
+mean(highInterest$profit)
+table(highInterest$not.fully.paid)
+110/(327+110)
+cutoff = sort(highInterest$predicted.risk, decreasing=FALSE)[100]
+cutoff
+selectedLoans = subset(highInterest,predicted.risk<=cutoff)
+sum(selectedLoans$profit)
+table(selectedLoans$not.fully.paid) 
